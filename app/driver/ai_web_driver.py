@@ -8,8 +8,11 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from selenium_ai.app.chat_completions.system_messages import FIND_ELEMENT_SYSTEM_MESSAGE
-from selenium_ai.app.chat_completions.tool_calls import FIND_ELEMENT_TOOL_CALL
+from selenium_ai.app.chat_completions.driver_system_messages import FIND_ELEMENT_SYSTEM_MESSAGE
+from selenium_ai.app.chat_completions.driver_tool_calls import FIND_ELEMENT_TOOL_CALL
+from selenium_ai.app.driver.web_element.ai_web_element import AiWebElement
+
+ai_client = openai.Client()
 
 
 class AiWebDriver(WebDriver):
@@ -17,10 +20,8 @@ class AiWebDriver(WebDriver):
 
     def __init__(self):
         super().__init__()
-        self.ai_client = openai.Client()
-        By.ID
 
-    def find_element(self, by=By.ID, value: Optional[str] = None) -> WebElement:
+    def find_element(self, by=By.ID, value: Optional[str] = None) -> AiWebElement:
         """
         Overrides the parent method, but behaves as usual unless an element isn't found
 
@@ -57,7 +58,7 @@ class AiWebDriver(WebDriver):
                 'content': f'The HTML is as follows """\n\n{self.page_source}\n\n"""'
             }
         ]
-        response = self.ai_client.chat.completions.create(
+        response = ai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
             tools=[FIND_ELEMENT_TOOL_CALL],
